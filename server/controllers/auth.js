@@ -1,8 +1,8 @@
-import { AggregationCursor } from "mongoose";
 import User from "../models/user";
 import jwt from "jsonwebtoken";
 import { hashPassword, comparePassword } from "../utils/auth";
 import AWS from "aws-sdk";
+import { nanoid } from "nanoid";
 
 const awsConfig = {
   accessKeyID: process.env.AWS_ACCESS_KEY_ID,
@@ -90,40 +90,53 @@ export const currentUser = async (req, res) => {
   }
 };
 
-export const sendTestEmail = async (req, res) => {
-  //console.log("Send email is using ses")
-  //res.json({ok : true})
-  const params = {
-    Source: process.env.EMAIL_FROM,
-    Destination: {
-      ToAddresses: ["skyleyoro01@gmail.com"],
-    },
-  
-    Message: {
-      Body: {
-        Html: {
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    console.log(email);
+    const shortCode = nanoid(6).toUpperCase();
+    const user = await User.findOneAndUpdate(
+      { email },
+      { passwordResetCode: shortCode }
+    );
+    if (!user) return res.status(400).send("User not found");
+    //prepare for email
+    const params = {
+      Source: process.env.EMAIL_FROM,
+      Destination: {
+        ToAddresses: [email],
+      },
+      Message: {
+        Body: {
+          Html: {
+            Charset: "UTF-8",
+            Data: `
+            <html>
+            <h1> Reset password link </h1>
+            <p> Use this code to reset your password</p>
+            <h2 style ="color:red;"> ${shortCode}</h2>
+            <i> edemy.com</i>
+            </html>
+          `
+          },
+        },
+
+        Subject: {
           Charset: "UTF-8",
-          Data: `<html>
-            <h1> Reset password Link</h1>
-            <p>Please use the following link to reset your passsword</p>
-          </html>`,
+          Data: "Reset password",
         },
       },
-      Subject: {
-        Charset: "UTF-8",
-        Data: "Passord reset link",
-      },
-    },
-  };
-
-  const emailSent = SES.sendEmail(params).promise();
-
-  emailSent
-    .then((data) => {
-      console.log(data);
-      res.json({ ok: true });
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+    };
+    const emailSent = SES.sendEmail(params).promise();
+    emailSent
+      .then((data) => {
+        console.log(data);
+        res.json({ ok: true });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  } catch (err) {
+    console.log(err);
+  }
 };
