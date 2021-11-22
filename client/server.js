@@ -10,7 +10,7 @@ app
   .prepare()
   .then(() => {
     const server = express();
-    //apply proxy in dev mode
+    // apply proxy in dev mode
     if (dev) {
       server.use(
         "/api",
@@ -27,7 +27,7 @@ app
 
     server.listen(3000, (err) => {
       if (err) throw err;
-      console.log("> Ready on http://localhost:3000");
+      console.log("> Ready on http://localhost:8000");
     });
   })
   .catch((err) => {

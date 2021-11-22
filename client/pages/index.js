@@ -1,10 +1,12 @@
-const HomePage =() => {
-    return (
+const Index = () => {
+  return (
     <>
-<h1 className ="jumbotron text-center bg-primary square">Here Ben</h1>
-<h2>Here Riu</h2>
-        </>)
-    
-  }
-  
-  export default HomePage
+      <h1 className="jumbotron text-center bg-primary square">
+        Online Education Marketplace
+      </h1>
+      <p>from next js...</p>
+    </>
+  );
+};
+
+export default Index;

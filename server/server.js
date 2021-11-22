@@ -1,43 +1,38 @@
-const  express = require('express');
-const cookieParser = require('cookie-parser')
-const cors = require("cors");
+import express from "express";
+import cors from "cors";
 import { readdirSync } from "fs";
-const csrf = require("csurf");
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
+import csrf from "csurf";
+import cookieParser from "cookie-parser";
 const morgan = require("morgan");
-require('dotenv').config();
+require("dotenv").config();
 
-const csrfProtection = csrf({ cookie: true})
-//create express app
+const csrfProtection = csrf({ cookie: true });
+
+// create express app
 const app = express();
-
 
 //DATABASE
 mongoose.connect(process.env.DATABASE, {})
     .then(() => console.log("**DB Connected**"))
     .catch((err) => console.log("DB connexion ERR => ", err))
 
-
-//apply middlewares
-app.use(cors())
+// apply middlewares
+app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
 app.use(morgan("dev"));
-app.use(cookieParser())
 
-//ROUTE
-readdirSync("./routes").map((r) => {
-    app.use("/api", require(`./routes/${r}`))
-});
+// route
+readdirSync("./routes").map((r) => app.use("/api", require(`./routes/${r}`)));
+// csrf
+app.use(csrfProtection);
 
-//csrf
-
-app.use(csrfProtection)
 app.get("/api/csrf-token", (req, res) => {
-    res.json({ csrfToken: req.csrfToken() });
+  res.json({ csrfToken: req.csrfToken() });
 });
 
-//PORT
-
+// port
 const port = process.env.PORT || 8000;
-app.listen(port, () => console.log(`Server is running on port ${port}`));
 
+app.listen(port, () => console.log(`Server is running on port ${port}`));

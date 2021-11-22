@@ -2,16 +2,19 @@ import { useState, useEffect, useContext } from "react";
 import { Menu } from "antd";
 import Link from "next/link";
 import {
-  UserAddOutlined,
   AppstoreOutlined,
+  CarryOutOutlined,
+  CoffeeOutlined,
   LoginOutlined,
   LogoutOutlined,
-  CoffeeOutlined,
+  TeamOutlined,
+  UserAddOutlined,
 } from "@ant-design/icons";
 import { Context } from "../context";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
+
 const { Item, SubMenu, ItemGroup } = Menu;
 
 const TopNav = () => {
@@ -19,6 +22,7 @@ const TopNav = () => {
 
   const { state, dispatch } = useContext(Context);
   const { user } = state;
+
   const router = useRouter();
 
   useEffect(() => {
@@ -34,19 +38,44 @@ const TopNav = () => {
   };
 
   return (
-    <Menu mode="horizontal" selectedKeys={current}>
+    <Menu mode="horizontal" selectedKeys={[current]}>
       <Item
         key="/"
         onClick={(e) => setCurrent(e.key)}
         icon={<AppstoreOutlined />}
       >
         <Link href="/">
-          <a href="">Home</a>
+          <a>App</a>
         </Link>
       </Item>
-      {/** user register login conditional */}
 
-      {user == null && (
+
+      {user && user.role && user.role.includes("Intructor") ? (
+        
+        <Item
+          key="/instructor/course/create"
+          onClick={(e) => setCurrent(e.key)}
+          icon={<CarryOutOutlined />}
+        >
+          <Link href="/instructor/course/create">
+            <a>Create Course</a>
+          </Link>
+        </Item>
+    ) : (
+        <Item
+          key="/user/become-instructor"
+          onClick={(e) => setCurrent(e.key)}
+          icon={<TeamOutlined />}
+        >
+          <Link href="/user/become-instructor">
+            <a>Become Instructor</a>
+          </Link>
+        </Item>
+  
+    )}
+
+
+      {user === null && (
         <>
           <Item
             key="/login"
@@ -54,41 +83,35 @@ const TopNav = () => {
             icon={<LoginOutlined />}
           >
             <Link href="/login">
-              <a href="">Login</a>
+              <a>Login</a>
             </Link>
           </Item>
-          {/** Register */}
+
           <Item
             key="/register"
             onClick={(e) => setCurrent(e.key)}
             icon={<UserAddOutlined />}
           >
             <Link href="/register">
-              <a href="">Register</a>
+              <a>Register</a>
             </Link>
           </Item>
         </>
       )}
-      {/** Logout conditional */}
-      {user != null && (
+
+      {user !== null && (
         <SubMenu
           icon={<CoffeeOutlined />}
           title={user && user.name}
           className="float-right"
         >
           <ItemGroup>
-            <Item key ="/user">
-                <Link href ="/user">
-                  <a>Dashbord</a>
-                </Link>
+            <Item key="/user">
+              <Link href="/user">
+                <a>Dashboard</a>
+              </Link>
             </Item>
-            <Item
-              onClick={logout}
-              icon={<LogoutOutlined />}
-              className="float-right"
-            >
-              Logout
-            </Item>
+            <Item onClick={logout}>Logout</Item>
           </ItemGroup>
         </SubMenu>
       )}
