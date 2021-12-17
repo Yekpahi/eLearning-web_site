@@ -1,16 +1,27 @@
 const express = require("express");
+const http = require('http');
+const https = require('https');
+const fs = require('fs');
+
+const ports = {
+  http: 3080,
+  https: 3000
+}
 const next = require("next");
 const { createProxyMiddleware } = require("http-proxy-middleware");
 
 const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev });
 const handle = app.getRequestHandler();
-
+const options = { 
+  key: fs.readFileSync("./localhost-key.pem"),
+  cert: fs.readFileSync("./localhost.pem"),
+};
 app
   .prepare()
   .then(() => {
     const server = express();
-    // apply proxy in dev mode
+    //apply proxy in dev mode
     if (dev) {
       server.use(
         "/api",
@@ -21,15 +32,21 @@ app
       );
     }
 
-    server.all("*", (req, res) => {
-      return handle(req, res);
+    server.all('*', (req, res) => {
+      return handle(req, res)    
     });
-
-    server.listen(3000, (err) => {
+    http.createServer(server).listen(ports.http);
+    https.createServer(options, server).listen(ports.https, err => {
       if (err) throw err;
-      console.log("> Ready on http://localhost:3000");
-    });
-  })
-  .catch((err) => {
-    console.log("Error", err);
+      console.log(`> Ready on https://localhost:${ports.https}`);
+    }) 
   });
+
+
+
+
+
+
+
+
+

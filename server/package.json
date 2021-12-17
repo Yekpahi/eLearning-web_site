@@ -19,6 +19,7 @@
     "dotenv": "^10.0.0",
     "esm": "^3.2.25",
     "express": "^4.17.1",
+    "express-formidable": "^1.2.0",
     "express-jwt": "^6.1.0",
     "formidable": "^1.2.2",
     "jsonwebtoken": "^8.5.1",
@@ -31,7 +32,7 @@
     "query-string": "^7.0.1",
     "react-image-file-resizer": "^0.4.7",
     "shortid": "^2.2.16",
-    "slugify": "^1.6.1",
+    "slugify": "^1.6.3",
     "stripe": "^8.191.0",
     "uuid": "^8.3.2"
   }
