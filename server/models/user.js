@@ -25,6 +25,12 @@ const userSchema = new Schema(
       type: String,
       default: "/avatar.png",
     },
+    courses: [
+      {
+        type: ObjectId,
+        ref: 'course',
+      },
+    ],
     role: {
       type: [String],
       default: ["Subscriber"],
@@ -37,7 +43,6 @@ const userSchema = new Schema(
       data: String,
       default: "",
     },
-    courses: [{ type: ObjectId, ref: "Course" }],
   },
   { timestamps: true }
 );

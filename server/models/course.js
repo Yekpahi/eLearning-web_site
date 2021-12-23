@@ -2,32 +2,6 @@ import mongoose from "mongoose";
 
 const { ObjectId } = mongoose.Schema;
 
-const lessonSchema = new mongoose.Schema(
-  {
-    title: {
-      type: String,
-      trim: true,
-      minlength: 3,
-      maxlength: 320,
-      required: true,
-    },
-    slug: {
-      type: String,
-      lowercase: true,
-    },
-    content: {
-      type: {},
-      minlength: 200,
-    },
-    video: {},
-    free_preview: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  { timestamps: true }
-);
-
 const courseSchema = new mongoose.Schema(
   {
     name: {
@@ -65,7 +39,10 @@ const courseSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    lessons: [lessonSchema],
+    chapters: [{
+      type : ObjectId,
+      ref : 'Chapter'
+  }]
   },
   { timestamps: true }
 );

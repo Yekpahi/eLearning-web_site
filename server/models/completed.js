@@ -11,6 +11,7 @@ const completedSchema = new mongoose.Schema(
       type: ObjectId,
       ref: "Course",
     },
+    chapters:[] ,
     lessons: [],
   },
   { timestamps: true }

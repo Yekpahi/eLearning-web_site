@@ -12,12 +12,16 @@ import {
   removeImage,
   create,
   read,
+  getChapter,
   uploadVideo,
   removeVideo,
   addLesson,
   update,
   removeLesson,
   updateLesson,
+  addChapter,
+  updateChapter,
+  removeChapter,
   publishCourse,
   unpublishCourse,
   courses,
@@ -29,6 +33,7 @@ import {
   markCompleted,
   listCompleted,
   markIncomplete,
+ 
 } from "../controllers/course";
 
 router.get("/courses", courses);
@@ -40,21 +45,28 @@ router.post("/course", requireSignin, isInstructor, create);
 router.put("/course/:slug", requireSignin, update);
 router.get("/course/:slug", read);
 router.post(
-  "/course/video-upload/:instructorId",
+  "/course/chapter/video-upload/:instructorId",
   requireSignin,
   formidable(),
   uploadVideo
 );
-router.post("/course/video-remove/:instructorId", requireSignin, removeVideo);
+router.post("/course/chapter/video-remove/:instructorId", requireSignin, removeVideo);
 
 // publish unpublish
 router.put("/course/publish/:courseId", requireSignin, publishCourse);
 router.put("/course/unpublish/:courseId", requireSignin, unpublishCourse);
 
-// `/api/course/lesson/${slug}/${course.instructor._id}`,
-router.post("/course/lesson/:slug/:instructorId", requireSignin, addLesson);
-router.put("/course/lesson/:slug/:instructorId", requireSignin, updateLesson);
-router.put("/course/:slug/:lessonId", requireSignin, removeLesson);
+// `/api/course/${slug}/${course.instructor._id}`,
+router.get("/course/chapter/:slug", getChapter);
+router.post("/course/chapter/:courseId", requireSignin, addChapter);
+router.put("/course/chapter/:slug/:instructorId", requireSignin, updateChapter);
+router.put("/course/:slug/:chapterId", requireSignin, removeChapter);
+
+
+// `/api/course/chapter/lesson/${slug}/${course.instructor._id}`,
+router.post("/course/chapter/lesson/:slug/:instructorId", requireSignin, addLesson);
+router.put("/course/chapter/lesson/:slug/:instructorId", requireSignin, updateLesson);
+router.put("/course/chapter/:slug/:lessonId", requireSignin, removeLesson);
 
 router.get("/check-enrollment/:courseId", requireSignin, checkEnrollment);
 

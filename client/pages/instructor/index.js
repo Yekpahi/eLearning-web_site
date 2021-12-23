@@ -21,7 +21,7 @@ const InstructorIndex = () => {
 
   return (
     <InstructorRoute>
-      <h1 className="jumbotron text-center square">Instructor Dashboard</h1>
+      <h1 className="jumbotron text-center square">Instructor Dashboard </h1>
       {/* <pre>{JSON.stringify(courses, null, 4)}</pre> */}
 
       {courses &&
@@ -45,12 +45,12 @@ const InstructorIndex = () => {
                       </a>
                     </Link>
                     <p style={{ marginTop: "-10px" }}>
-                      {course.lessons.length} Lessons
+                      {course.chapters.length} chapters
                     </p>
 
-                    {course.lessons.length < 5 ? (
+                    {course.chapters.length < 5 ? (
                       <p style={myStyle} className="text-warning">
-                        At least 5 lessons are required to publish a course
+                        At least 5 chapters are required to publish a course
                       </p>
                     ) : course.published ? (
                       <p style={myStyle} className="text-success">

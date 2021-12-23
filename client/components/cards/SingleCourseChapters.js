@@ -1,8 +1,8 @@
 import { List, Avatar } from "antd";
 const { Item } = List;
 
-const SingleCourseLessons = ({
-  lessons,
+const SingleCourseChapters = ({
+  chapters,
   setPreview,
   showModal,
   setShowModal,
@@ -11,28 +11,17 @@ const SingleCourseLessons = ({
     <div className="container">
       <div className="row">
         <div className="col lesson-list">
-          {lessons && <h4>{lessons.length} Lessons</h4>}
+          {chapters && <h4>{chapters.length} chapitre</h4>}
           <hr />
           <List
             itemLayout="horizontal"
-            dataSource={lessons}
+            dataSource={chapters}
             renderItem={(item, index) => (
               <Item>
                 <Item.Meta
                   avatar={<Avatar>{index + 1}</Avatar>}
                   title={item.title}
                 />
-                {item.video && item.video !== null && item.free_preview && (
-                  <span
-                    className="text-primary pointer"
-                    onClick={() => {
-                      setPreview(item.video.Location);
-                      setShowModal(!showModal);
-                    }}
-                  >
-                    Preview
-                  </span>
-                )}
               </Item>
             )}
           />
@@ -42,4 +31,4 @@ const SingleCourseLessons = ({
   );
 };
 
-export default SingleCourseLessons;
+export default SingleCourseChapters;

@@ -1,6 +1,7 @@
 import AWS from "aws-sdk";
 import { nanoid } from "nanoid";
 import Course from "../models/course";
+import Chapter from "../models/chapter";
 import Completed from "../models/completed";
 import slugify from "slugify";
 import { readFileSync } from "fs";
@@ -109,6 +110,18 @@ export const read = async (req, res) => {
   }
 };
 
+export const getChapter = async (req, res) => {
+  try {
+    const chapter = await Chapter.findOne({ slug: req.params.slug })
+      .populate("instructor", "_id name")
+      .exec();
+    res.json(chapter);
+    console.log(chapter);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 export const uploadVideo = async (req, res) => {
   try {
     // console.log("req.user._id", req.user._id);
@@ -173,6 +186,22 @@ export const removeVideo = async (req, res) => {
   }
 };
 
+
+
+
+export const addChapter = async (req, res) => {
+
+  const courseId = req.params.courseId;
+  const newChapter = await Chapter.create({...req.body, course : courseId})
+  await Course.findByIdAndUpdate(courseId, { $push : { chapters : newChapter }})
+  const foundCourse = await Course.findById(courseId).populate('chapters')
+  res.json({
+      status : 'success',
+      message : 'chapter added',
+      data : foundCourse
+  })  
+};
+
 export const addLesson = async (req, res) => {
   try {
     const { slug, instructorId } = req.params;
@@ -219,6 +248,49 @@ export const update = async (req, res) => {
   }
 };
 
+export const removeChapter = async (req, res) => {
+  const { slug, chapterId } = req.params;
+  const course = await Course.findOne({ slug }).exec();
+  if (req.user._id != course.instructor) {
+    return res.status(400).send("Unauthorized");
+  }
+
+  const deletedCourse = await Course.findByIdAndUpdate(course._id, {
+    $pull: { chapters: { _id: chapterId } },
+  }).exec();
+
+  res.json({ ok: true });
+};
+
+export const updateChapter = async (req, res) => {
+  try {
+    // console.log("UPDATE LESSON", req.body);
+    const { slug } = req.params;
+    const { _id, description } = req.body;
+    const course = await Course.findOne({ slug }).select("instructor").exec();
+
+    if (course.instructor._id != req.user._id) {
+      return res.status(400).send("Unauthorized");
+    }
+
+    const updated = await Course.updateOne(
+      { "chapters._id": _id },
+      {
+        $set: {
+          "chapters.$.title": title,
+          "chapters.$.description": description,
+        },
+      },
+      { new: true }
+    ).exec();
+    // console.log("updated", updated);
+    res.json({ ok: true });
+  } catch (err) {
+    console.log(err);
+    return res.status(400).send("Update chapter failed");
+  }
+};
+
 export const removeLesson = async (req, res) => {
   const { slug, lessonId } = req.params;
   const course = await Course.findOne({ slug }).exec();
@@ -226,7 +298,7 @@ export const removeLesson = async (req, res) => {
     return res.status(400).send("Unauthorized");
   }
 
-  const deletedCourse = await Course.findByIdAndUpdate(course._id, {
+  const deletedChapter = await Course.findByIdAndUpdate(course._id, {
     $pull: { lessons: { _id: lessonId } },
   }).exec();
 
@@ -238,13 +310,13 @@ export const updateLesson = async (req, res) => {
     // console.log("UPDATE LESSON", req.body);
     const { slug } = req.params;
     const { _id, title, content, video, free_preview } = req.body;
-    const course = await Course.findOne({ slug }).select("instructor").exec();
+    const chapter = await Course.findOne({ slug }).select("instructor").exec();
 
-    if (course.instructor._id != req.user._id) {
+    if (chapter.instructor._id != req.user._id) {
       return res.status(400).send("Unauthorized");
     }
 
-    const updated = await Course.updateOne(
+    const updated = await Chapter.updateOne(
       { "lessons._id": _id },
       {
         $set: {
@@ -433,7 +505,7 @@ export const userCourses = async (req, res) => {
 };
 
 export const markCompleted = async (req, res) => {
-  const { courseId, lessonId } = req.body;
+  const { courseId, chapterId, lessonId } = req.body;
   // console.log(courseId, lessonId);
   // find if user with that course is already created
   const existing = await Completed.findOne({
@@ -449,7 +521,7 @@ export const markCompleted = async (req, res) => {
         course: courseId,
       },
       {
-        $addToSet: { lessons: lessonId },
+        $addToSet: { chapters: chapterId, lessons: lessonId },
       }
     ).exec();
     res.json({ ok: true });
@@ -458,6 +530,7 @@ export const markCompleted = async (req, res) => {
     const created = await new Completed({
       user: req.user._id,
       course: courseId,
+      chapters: chapterId,
       lessons: lessonId,
     }).save();
     res.json({ ok: true });
@@ -470,7 +543,7 @@ export const listCompleted = async (req, res) => {
       user: req.user._id,
       course: req.body.courseId,
     }).exec();
-    list && res.json(list.lessons);
+    list && res.json(list.lessons, list.chapters);
   } catch (err) {
     console.log(err);
   }
@@ -478,7 +551,7 @@ export const listCompleted = async (req, res) => {
 
 export const markIncomplete = async (req, res) => {
   try {
-    const { courseId, lessonId } = req.body;
+    const { courseId, chapterId, lessonId } = req.body;
 
     const updated = await Completed.findOneAndUpdate(
       {
@@ -486,7 +559,7 @@ export const markIncomplete = async (req, res) => {
         course: courseId,
       },
       {
-        $pull: { lessons: lessonId },
+        $pull: { lessons: lessonId, chapters: chapterId },
       }
     ).exec();
     res.json({ ok: true });

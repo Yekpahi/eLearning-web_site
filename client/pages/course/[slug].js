@@ -3,7 +3,7 @@ import axios from "axios";
 import { useRouter } from "next/router";
 import SingleCourseJumbotron from "../../components/cards/SingleCourseJumbotron";
 import PreviewModal from "../../components/modal/PreviewModal";
-import SingleCourseLessons from "../../components/cards/SingleCourseLessons";
+import SingleCourseChapters from "../../components/cards/SingleCourseChapters";
 import { Context } from "../../context";
 import { toast } from "react-toastify";
 import { loadStripe } from "@stripe/stripe-js";
@@ -95,9 +95,9 @@ const SingleCourse = ({ course }) => {
         preview={preview}
       />
 
-      {course.lessons && (
-        <SingleCourseLessons
-          lessons={course.lessons}
+      {course.chapters && (
+        <SingleCourseChapters
+          chapters={course.chapters}
           setPreview={setPreview}
           showModal={showModal}
           setShowModal={setShowModal}
