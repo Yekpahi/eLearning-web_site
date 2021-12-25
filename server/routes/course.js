@@ -33,6 +33,7 @@ import {
   markCompleted,
   listCompleted,
   markIncomplete,
+  chapters
  
 } from "../controllers/course";
 
@@ -56,7 +57,8 @@ router.post("/course/chapter/video-remove/:instructorId", requireSignin, removeV
 router.put("/course/publish/:courseId", requireSignin, publishCourse);
 router.put("/course/unpublish/:courseId", requireSignin, unpublishCourse);
 
-// `/api/course/${slug}/${course.instructor._id}`,
+// `/api/course/chapter`
+router.get("/course/course-chapters", requireSignin, isInstructor, chapters);
 router.get("/course/chapter/:slug", getChapter);
 router.post("/course/chapter/:courseId", requireSignin, addChapter);
 router.put("/course/chapter/:slug/:instructorId", requireSignin, updateChapter);

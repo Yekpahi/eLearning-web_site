@@ -186,21 +186,38 @@ export const removeVideo = async (req, res) => {
   }
 };
 
-
-
-
 export const addChapter = async (req, res) => {
-
-  const courseId = req.params.courseId;
-  const newChapter = await Chapter.create({...req.body, course : courseId})
+  const { title} = req.body;
+  const {courseId} = req.params;
+  const newChapter = await Chapter.create({...req.body, course : courseId, slug: slugify(title)})
   await Course.findByIdAndUpdate(courseId, { $push : { chapters : newChapter }})
-  const foundCourse = await Course.findById(courseId).populate('chapters')
+  const foundCourse = await Course.findById(courseId).populate('chapters');
+  console.log("Chapitre ajouté : "+ newChapter);
   res.json({
       status : 'success',
       message : 'chapter added',
       data : foundCourse
   })  
 };
+
+// get all books
+export const chapters = (req, res) => {
+
+  Product.find()
+    .populate("course", "_id name")
+    .exec((err, chapters) => {
+      if (err) {
+        return res.status(400).json({
+          error: 'chapters not found',
+        });
+        console.log("Rien n'a été listé");
+      }
+      
+      res.json(chapters);
+    });
+};
+
+
 
 export const addLesson = async (req, res) => {
   try {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import InstructorRoute from "../../../../components/routes/InstructorRoute";
+import Chapters from "../../../../components/chapters/chapters";
 import axios from "axios";
 import Link from "next/link";
 import { Avatar, Tooltip, Button, Modal, List } from "antd";
@@ -32,8 +33,21 @@ const CourseView = () => {
   // student count
   const [students, setStudents] = useState(0);
 
+  const [chapters, setChapters] = useState({});
+
+
   const router = useRouter();
   const { slug } = router.query;
+
+  
+  useEffect(() => {
+    loadChapters();
+  }, []);
+
+  const loadChapters = async () => {
+    const { data } = await axios.get("/api/course/course-chapters");
+    setChapters(data);
+  };
 
   useEffect(() => {
     loadCourse();
@@ -173,6 +187,7 @@ const CourseView = () => {
                     <p style={{ marginTop: "-10px" }}>
                       {course.chapters && course.chapters.length} Chapters 
                     </p>
+                    <p>{course.description}</p>
                     <p style={{ marginTop: "-15px", fontSize: "10px" }}>
                       {course.category}
                     </p>
@@ -260,31 +275,12 @@ const CourseView = () => {
                 <h4>
                   {course && course.chapters && course.chapters.length} chapters
                 </h4>
-                <List
-                  itemLayout="horizontal"
-                  dataSource={course && course.chapters}
-                  renderItem={(item, index) => (
-                    <Item>
-                      <Item.Meta
-                        avatar={<Avatar>{index + 1}</Avatar>}
-                        title={
-                        <Link
-                        href={`/instructor/course/view/chapter/${course.chapters[index].slug}`}
-                        className="pointer"
-                        >
-                          <a href="">{item.title}</a>
-                        </Link>}
-                       >
-                      </Item.Meta>
-                    </Item>
-                  )}
-                  
-                ></List>
               </div>
             </div>
           </div>
         )}
       </div>
+      <Chapters/>
     </InstructorRoute>
   );
 };
